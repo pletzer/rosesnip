@@ -5,6 +5,8 @@ if sys.version_info.major >= 3:
 else:
     from ConfigParser import ConfigParser
 import copy
+import time
+import os
 
 
 """
@@ -74,10 +76,11 @@ def generate_conf(rose_conf, start_date, end_date, model, diag, index):
     mname = 'namelist:models(' + model + ')'
     dname = 'namelist:diags(' + diag + ')'
     for section in conf.sections():
-        if not section != 'general' and \
+        if section != 'general' and \
                section != dname and \
                section != mname:
             # remove this section
+            print(f'*** removing section >{section}<')
             del conf[section]
     # set the start and send dates
     conf[mname]['start_date'] = start_date
@@ -97,12 +100,13 @@ def main():
                            help='specify comma separated list of diagnostics, for instance "tas_global,"')
     parser.add_argument('--configuration', dest='conf_filename', default='rose-app-expanded.conf', help='serial rose config file, for instance "rose-app-expanded.conf"')
     parser.add_argument('--num_procs', dest='num_procs', default=1, type=int, help='number of processors')
-    parser.add_argument('--output_dir', dest='output_dir', default='./', help='output directory')
+    parser.add_argument('--output_dir', dest='output_dir', default='', help='specify output directory')
+    parser.add_argument('--clear', dest='clear', action='store_true', help='start by removing files in output directory')
     args = parser.parse_args()
 
     print('configuration file: {}'.format(args.conf_filename))
-    print('models            : {}'.format(args.models))
-    print('diags             : {}'.format(args.diags))
+    print('models            : {}'.format(args.models.split(',')))
+    print('diags             : {}'.format(args.diags.split(',')))
     print('num processors    : {}'.format(args.num_procs))
 
     # run some checks
@@ -112,17 +116,30 @@ def main():
     # read the configuration file
     rose_conf = read_config(args.conf_filename)
 
+    if not args.output_dir:
+        # generate name for temporary directory
+        args.output_dir = 'output_' + str(int(time.time() * 100))
+        print(f'saving output in dir: {args.output_dir}')
+    # create output directory if not present
+    if not os.path.exists(args.output_dir):
+        os.mkdir(args.output_dir)
+    else:
+        if args.clear:
+            for f in os.listdir(args.output_dir):
+                os.remove(f)
+
     index = 0
-    for diag in diags:
-        diag_def = conf['namelist:diags(' + diag + ')']
-        for model in models:
-            model_def = conf['namelist:models(' + model + ')']
+    for diag in args.diags.split(','):
+        diag_def = rose_conf['namelist:diags(' + diag + ')']
+        for model in args.models.split(','):
+            model_def = rose_conf['namelist:models(' + model + ')']
             start_date = model_def['start_date']
             end_date = model_def['end_date']
             for sdt, edt in split_time_range(start_date, end_date, args.num_procs):
                 conf = generate_conf(rose_conf, start_date, end_date, model, diag, index)
                 # write the file
-                with open(args.conf_filename + f'_{index}', 'w') as configfile:
+                confilename = os.path.join(args.output_dir, args.conf_filename + f'_{index}')
+                with open(confilename, 'w') as configfile:
                     conf.write(configfile)
                 index += 1
 
