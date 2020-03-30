@@ -7,6 +7,7 @@ else:
 import copy
 import time
 import os
+import re
 
 
 """
@@ -56,6 +57,8 @@ def split_time_range(start_date, end_date, n):
     """
     res = []
     sdt = start_date
+    print(f'**** start_date = {start_date}')
+    print(f'**** end_date = {end_date}')
     start_year = get_year(start_date)
     end_year = get_year(end_date)
     dy = (end_year - start_year)//n
@@ -90,19 +93,46 @@ def generate_conf(rose_conf, start_date, end_date, model, diag, index):
 
     return conf
 
+def get_all_diags(rose_conf):
+    res = ''
+    pat = re.compile(r'namelist:diags\(([^\)]+)\)')
+    for section in rose_conf.sections():
+        m = re.match(pat, section)
+        if m:
+            res += ',' + m.group(1)
+    return res[1:]
+
+def get_all_models(rose_conf):
+    res = ''
+    pat = re.compile(r'namelist:models\(([^\)]+)\)')
+    for section in rose_conf.sections():
+        m = re.match(pat, section)
+        if m:
+            res += ',' + m.group(1)
+    return res[1:]
+
 
 def main():
 
     parser = argparse.ArgumentParser(description='Generate parallel rose config files.')
-    parser.add_argument('--models', dest='models', default='u-bc179', 
-                           help='specify comma separated list of models, for instance "u-bc179,u-bc292"')
-    parser.add_argument('--diags', dest='diags', default='tas_global', 
-                           help='specify comma separated list of diagnostics, for instance "tas_global,"')
+    parser.add_argument('--models', dest='models', default='', 
+                           help='specify comma separated list of models, for instance "u-bc179,u-bc292 (leave empty to include all models)"')
+    parser.add_argument('--diags', dest='diags', default='', 
+                           help='specify comma separated list of diagnostics, for instance "tas_global (leave empty to consider include diagnostics)"')
     parser.add_argument('--configuration', dest='conf_filename', default='rose-app-expanded.conf', help='serial rose config file, for instance "rose-app-expanded.conf"')
     parser.add_argument('--num_procs', dest='num_procs', default=1, type=int, help='number of processors')
     parser.add_argument('--output_dir', dest='output_dir', default='', help='specify output directory')
     parser.add_argument('--clear', dest='clear', action='store_true', help='start by removing files in output directory')
     args = parser.parse_args()
+
+    # read the configuration file
+    rose_conf = read_config(args.conf_filename)
+
+    if not args.models:
+        args.models = get_all_models(rose_conf)
+
+    if not args.diags:
+        args.diags = get_all_diags(rose_conf)
 
     print('configuration file: {}'.format(args.conf_filename))
     print('models            : {}'.format(args.models.split(',')))
@@ -112,9 +142,6 @@ def main():
     # run some checks
     if args.num_procs < 1:
         raise ValueError('ERROR: num processors {} < 1!'.format(args.num_procs))
-
-    # read the configuration file
-    rose_conf = read_config(args.conf_filename)
 
     if not args.output_dir:
         # generate name for temporary directory
