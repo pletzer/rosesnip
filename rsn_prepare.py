@@ -4,18 +4,17 @@ if sys.version_info.major >= 3:
     from configparser import ConfigParser
 else:
     from ConfigParser import ConfigParser
-import copy
 import time
 import os
 import re
+from datetime import datetime
 
 """
-Generate rose configuration files for parallel processing
+Prepare micor rose configuration files for parallel processing
 """
 
 PAT_DIAG = re.compile(r'namelist:diags\(([^\)]+)\)')
 PAT_MODEL = re.compile(r'namelist:models\(([^\)]+)\)')
-
 
 
 def read_config(config_file=None):
@@ -49,7 +48,7 @@ def get_month_day(dt):
     """Extract the month and day from YYYY-MM-DD-*"""
     return dt.split('-')[1:3]
 
-def split_time_range(start_date, end_date):
+def split_time_range(start_date, end_date, steps=1):
     """
     Split a time range into n segments
 
@@ -62,7 +61,7 @@ def split_time_range(start_date, end_date):
     sdt = start_date
     start_year = get_year(start_date)
     end_year = get_year(end_date)
-    for y in range(start_year, end_year):
+    for y in range(start_year, end_year, steps):
 
         s = str(y) + '-01-01'
         if y == start_year:
@@ -106,10 +105,11 @@ def get_all_sections_of_type(rose_conf, pat):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Generate parallel rose config files.')
+    parser = argparse.ArgumentParser(description='Prepare parallel rose config files.')
     parser.add_argument('-c', dest='conf_filename', default='rose-app-expanded.conf', 
                            help='serial rose config file, for instance "rose-app-expanded.conf"')
-    parser.add_argument('-o', dest='output_dir', default='', help='specify output directory')
+    parser.add_argument('-d', dest='result_dir', default='', help='specify result directory')
+    parser.add_argument('-y', dest='num_years', type=int, default=10, help='number of years in each processor group')
     parser.add_argument('-C', dest='clear', action='store_true', help='start by removing any files in output directory')
     args = parser.parse_args()
 
@@ -122,17 +122,19 @@ def main():
     print('configuration file: {}'.format(args.conf_filename))
     print('models            : {}'.format(models))
     print('diags             : {}'.format(diags))
+    print('{} models x {} diagnostics'.format(len(models), len(diags)))
 
-    if not args.output_dir:
+    if not args.result_dir:
         # generate name for temporary directory
-        args.output_dir = 'output_' + str(int(time.time() * 100))
-        print(f'saving output in dir: {args.output_dir}')
+        dt =  datetime.now()
+        args.result_dir = 'result_{}-{:02}-{02}-{:02}_{:02}_{:02}_{:02}'.format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        print(f'saving results in dir: {args.result_dir}')
     # create output directory if not present
-    if not os.path.exists(args.output_dir):
-        os.mkdir(args.output_dir)
+    if not os.path.exists(args.result_dir):
+        os.mkdir(args.result_dir)
     else:
         if args.clear:
-            for f in os.listdir(args.output_dir):
+            for f in os.listdir(args.result_dir):
                 os.remove(f)
 
     index = 0
@@ -142,10 +144,10 @@ def main():
             model_def = rose_conf['namelist:models(' + model + ')']
             start_date = model_def['start_date']
             end_date = model_def['end_date']
-            for sdt, edt in split_time_range(start_date, end_date):
+            for sdt, edt in split_time_range(start_date, end_date, steps=args.num_years):
                 conf = generate_conf(rose_conf, start_date, end_date, model, diag, index)
                 # write the file
-                confilename = os.path.join(args.output_dir, args.conf_filename + f'_{index}')
+                confilename = os.path.join(args.result_dir, args.conf_filename + f'_{index}')
                 with open(confilename, 'w') as configfile:
                     conf.write(configfile)
                 index += 1
