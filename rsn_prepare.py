@@ -96,6 +96,7 @@ def create_model_diag_conf(rose_conf, templ_conf, start_date, end_date, model, d
     conf[mname]['end_date'] = end_date
     # add processor Id
     conf['general']['processor_id'] = str(index)
+    conf['general']['clear_netcdf_cache'] = 'false'
 
     return conf
 
