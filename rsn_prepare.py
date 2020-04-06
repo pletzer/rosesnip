@@ -8,6 +8,7 @@ import os
 import re
 from datetime import datetime
 import copy
+import numpy
 
 """
 Prepare micro rose configuration files for parallel processing
@@ -35,23 +36,16 @@ def split_time_range(start_date, end_date, steps=1):
     end_date   : end date in YYYY-MM-DD format
     steps      : number of years between start/end 
 
-    returns a list [(start_date0, end_date0), (start_date1, end_date1), ....]
+    returns a list [start_date0, start_date1, ....]
     """
-    res = []
-    sdt = start_date
     start_year = get_year(start_date)
     end_year = get_year(end_date)
-    for y in range(start_year, end_year, steps):
-
-        s = str(y) + '-01-01'
-        if y == start_year:
-            s = start_date
-
-        e = str(y +1) + '-01-01'
-        if y == end_year:
-            e = end_date
-
-        res.append((s, e))
+    years = numpy.arange(start_year, end_year + 1)   
+    nchunks = (end_year - start_year) // steps
+    chunks = [x for x in numpy.array_split(years, nchunks) if x.size > 0]
+    res = [str(c[0]) + '-01-01' for c in chunks]
+    res[0] = start_date
+    res.append(end_date)
 
     return res
 
@@ -87,7 +81,7 @@ def create_model_diag_conf(rose_conf, templ_conf, start_date, end_date, model, d
     returns a configuration
     """
 
-    conf = copy.copy(templ_conf)
+    conf = copy.deepcopy(templ_conf)
 
     mname = 'namelist:models(' + model + ')'
     dname = 'namelist:diags(' + diag + ')'
@@ -131,7 +125,6 @@ def main():
     # read the configuration file
     rose_conf = ConfigParser()
     rose_conf.read(args.conf_filename)
-    rose_conf = read_config(args.conf_filename)
 
     models = get_all_sections_of_type(rose_conf, PAT_MODEL)
     diags = get_all_sections_of_type(rose_conf, PAT_DIAG)
@@ -146,7 +139,9 @@ def main():
     if not args.result_dir:
         # generate name for temporary directory
         dt =  datetime.now()
-        args.result_dir = 'result_{}-{:02}-{02}-{:02}_{:02}_{:02}_{:02}'.format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        args.result_dir = \
+           'result_Y{:02}M{:02}D{:02}H{:02}m{:02}s{:02}'.format(dt.year, dt.month, dt.day, 
+                                                               dt.hour, dt.minute, dt.second)
         print(f'saving results in dir: {args.result_dir}')
     # create output directory if not present
     if not os.path.exists(args.result_dir):
@@ -157,6 +152,7 @@ def main():
             for f in os.listdir(args.result_dir):
                 os.remove(f)
 
+    # create a small template conf file without models or diags
     template_conf = generate_template_conf(rose_conf)
 
     # generate all the micro configuration files
@@ -167,10 +163,17 @@ def main():
             model_def = rose_conf['namelist:models(' + model + ')']
             start_date = model_def['start_date']
             end_date = model_def['end_date']
-            # iterate over the time windowss
-            for sdt, edt in split_time_range(start_date, end_date, steps=args.num_years):
+
+            split_dates = split_time_range(start_date, end_date, steps=args.num_years)
+
+            # iterate over the time windows
+            for i in range(len(split_dates) - 1):
+
+                sdt = split_dates[i]
+                edt = split_dates[i + 1]
+
                 conf = create_model_diag_conf(rose_conf, template_conf, 
-                                           start_date, end_date, model, diag, index)
+                                              sdt, edt, model, diag, index)
                 # write the file
                 confilename = os.path.join(args.result_dir, args.conf_filename + f'_{index}')
                 with open(confilename, 'w') as configfile:
