@@ -50,7 +50,7 @@ def split_time_range(start_date, end_date, steps=1):
     return res
 
 
-def generate_template_conf(rose_conf):
+def generate_template_conf(rose_conf, output_dir):
     """
     Returns a template configuration without models or diags
 
@@ -63,6 +63,10 @@ def generate_template_conf(rose_conf):
         if not re.match(PAT_MODEL, section) and not re.match(PAT_DIAG, section):
             # not a model and not a diag section so add
             conf[section] = rose_conf[section]
+
+    # set the output_dir
+    conf['general']['output_dir'] = output_dir
+
     return conf 
 
 
@@ -139,7 +143,7 @@ def main():
     if not args.result_dir:
         # generate name for temporary directory
         dt =  datetime.now()
-        args.result_dir = \
+        args.result_dir = os.getcwd() + '/' + \
            'result_Y{:02}M{:02}D{:02}H{:02}m{:02}s{:02}'.format(dt.year, dt.month, dt.day, 
                                                                dt.hour, dt.minute, dt.second)
         print(f'saving results in dir: {args.result_dir}')
@@ -153,7 +157,7 @@ def main():
                 os.remove(f)
 
     # create a small template conf file without models or diags
-    template_conf = generate_template_conf(rose_conf)
+    template_conf = generate_template_conf(rose_conf, output_dir=args.result_dir)
 
     # generate all the micro configuration files
     index = 0
