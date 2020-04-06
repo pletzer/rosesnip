@@ -4,6 +4,7 @@ import os
 import glob
 import subprocess
 import re
+from datetime import datetime
 
 """
 Submit the previously generated rose-configuration files
@@ -41,13 +42,16 @@ def main():
 
     csvfile = 'status.csv'
     csv = open(csvfile, 'w')
-    csv.write('rose_conf_filename,job_id,status\n')
+    csv.write('rose_conf_filename,job_id,status,submission_date,submission_time\n')
 
     for conffile in glob.glob(os.path.join(args.result_dir, '*.conf_[0-9]+'):
-        cmd = 'echo srun --time={args.time} --mem={args.mem} {args.abrun} {args.monitorModel} -c {conffile} -v'
+        cmd = 'echo srun --output={args.result_dir}/slurm-%a.out --time={args.time} --mem={args.mem} {args.abrun} {args.monitorModel} -c {conffile} -v'
         out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         jobid, stat = get_job_id(out)
-        csv.write('{},{},{}\n'.format(conffile, job_id, stat))
+        dt = datetime.now()
+        now_date = '{}-{}-{}'.format(dt.year, dt.month, dt.day)
+        now_time = '{}:{}:{}'.format(dt.hour, dt.minute, dt.second)
+        csv.write('{},{},{},{},{}\n'.format(conffile, job_id, stat, now_date, now_time))
 
     csv.close()
 

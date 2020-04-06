@@ -29,7 +29,7 @@ def main():
 
     df = pandas.read_csv(csvfile)
     for st in 'UNKOWN', 'queued', 'allocated', 'completed':
-        n = len(df.loc[df.status == 'UNKNOW'].index)
+        n = len(df.loc[df.status == 'UNKNOWN'].index)
         print('Number of {} jobs: {}'.format(st, n))
  
 
