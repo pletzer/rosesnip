@@ -147,7 +147,7 @@ def main():
         args.result_dir = os.getcwd() + '/' + \
            'result_Y{:02}M{:02}D{:02}H{:02}m{:02}s{:02}'.format(dt.year, dt.month, dt.day, 
                                                                dt.hour, dt.minute, dt.second)
-        print(f'saving results in dir: {args.result_dir}')
+        print('saving results in dir: {}.'.format(args.result_dir))
     # create output directory if not present
     if not os.path.exists(args.result_dir):
         os.mkdir(args.result_dir)
