@@ -53,11 +53,11 @@ def main():
         slurm_options = '--output={}/slurm-%a.out --time={} --mem={}'.format(args.result_dir, args.time, args.mem)
 
         # build the command
-        cmd = ''
+        cmd = 'srun {} {} {} -c {} -v'.format(slurm_options, args.abrun, args.monitorModel, conffile)
         if args.test:
             # testing only
-            cmd = 'echo '
-        cmd += 'srun {} {} {} -c {} -v'.format(slurm_options, args.abrun, args.monitorModel, conffile)
+            cmd = 'echo ' + cmd
+            print(cmd)
 
         # execute the command
         out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
