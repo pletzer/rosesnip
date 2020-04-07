@@ -41,7 +41,7 @@ def split_time_range(start_date, end_date, steps=1):
     start_year = get_year(start_date)
     end_year = get_year(end_date)
     years = numpy.arange(start_year, end_year + 1)   
-    nchunks = (end_year - start_year) // steps
+    nchunks = max(1, (end_year - start_year) // steps)
     chunks = [x for x in numpy.array_split(years, nchunks) if x.size > 0]
     res = [str(c[0]) + '-01-01' for c in chunks]
     res[0] = start_date
@@ -180,7 +180,7 @@ def main():
                 conf = create_model_diag_conf(rose_conf, template_conf, 
                                               sdt, edt, model, diag, index)
                 # write the file
-                confilename = os.path.join(args.result_dir, args.conf_filename + f'_{index}')
+                confilename = os.path.join(args.result_dir, args.conf_filename + '_{:06}'.format(index))
                 with open(confilename, 'w') as configfile:
                     conf.write(configfile)
                 index += 1
