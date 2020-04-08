@@ -106,7 +106,7 @@ def create_model_diag_conf(rose_conf, templ_conf, model, diag, index, start_date
 
 def write_rose_conf(result_dir, conf_filename, 
                     template_conf, rose_conf, model, diag, index, 
-                    start_date, end_date):
+                    start_date, end_date, num_digits):
     """
     Write the configuration file
 
@@ -126,7 +126,8 @@ def write_rose_conf(result_dir, conf_filename,
                                   model, diag, index, start_date, end_date)
 
     # write the file
-    confilename = os.path.join(result_dir, conf_filename + '_{:09}'.format(index))
+    fmt = '_{:0' + str(num_digits) + '}'
+    confilename = os.path.join(result_dir, conf_filename + fmt.format(index))
     with open(confilename, 'w') as configfile:
         conf.write(configfile)
 
@@ -169,6 +170,7 @@ def main():
     print('models            : {}'.format(models))
     print('diags             : {}'.format(diags))
     print('{} models x {} diagnostics'.format(len(models), len(diags)))
+    num_digits = int(numpy.log10(len(models) * len(diags))) + 3
 
     # prepare the result directory, choosing its name, creating it or
     # cleaning its content
@@ -176,7 +178,7 @@ def main():
         # generate name for temporary directory
         dt =  datetime.now()
         args.result_dir = os.getcwd() + '/' + \
-           'result_Y{:02}M{:02}D{:02}H{:02}m{:02}s{:02}'.format(dt.year, dt.month, dt.day, 
+           'result_{:02}{:02}{:02}T{:02}h{:02}m{:02}s'.format(dt.year, dt.month, dt.day, 
                                                                dt.hour, dt.minute, dt.second)
         print('saving results in dir: {}.'.format(args.result_dir))
     # create output directory if not present
@@ -221,7 +223,7 @@ def main():
                 print('info: no year parallelization in model {}...'.format(model))
                 write_rose_conf(args.result_dir, args.conf_filename, 
                                 template_conf, rose_conf, model, diag, index, 
-                                start_date=sdt, end_date=edt)
+                                start_date=sdt, end_date=edt, num_digits=num_digits)
                 index += 1
 
             else:
@@ -237,7 +239,7 @@ def main():
                     edt = split_dates[i + 1]
                     write_rose_conf(args.result_dir, args.conf_filename, 
                                     template_conf, rose_conf, model, diag, index, 
-                                    start_date=sdt, end_date=edt)
+                                    start_date=sdt, end_date=edt, num_digits=num_digits)
                     index += 1
 
 
