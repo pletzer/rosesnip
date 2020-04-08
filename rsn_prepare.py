@@ -70,17 +70,17 @@ def generate_template_conf(rose_conf, output_dir):
     return conf 
 
 
-def create_model_diag_conf(rose_conf, templ_conf, start_date, end_date, model, diag, index):
+def create_model_diag_conf(rose_conf, templ_conf, model, diag, index, start_date='', end_date=''):
     """
     Add model and diag sections to configuration
 
     rose_conf   : original rose configuration
     templ_conf  : template configuration, will be copied
-    start_date  : start date to add to model section
-    end_date    : end date to add to model section
     model       : model name
     diag        : diag name
     index       : processor id
+    start_date  : start date to add to model section
+    end_date    : end date to add to model section
 
     returns a configuration
     """
@@ -91,14 +91,45 @@ def create_model_diag_conf(rose_conf, templ_conf, start_date, end_date, model, d
     dname = 'namelist:diags(' + diag + ')'
     conf[mname] = rose_conf[mname]
     conf[dname] = rose_conf[dname]
-    # set the start and send dates
-    conf[mname]['start_date'] = start_date
-    conf[mname]['end_date'] = end_date
+
+    # set the start and send dates (if defined)
+    if start_date:
+        conf[mname]['start_date'] = start_date
+    if end_date:
+        conf[mname]['end_date'] = end_date
+
     # add processor Id
     conf['general']['processor_id'] = str(index)
     conf['general']['clear_netcdf_cache'] = 'false'
 
     return conf
+
+def write_rose_conf(result_dir, conf_filename, 
+                    template_conf, rose_conf, model, diag, index, 
+                    start_date, end_date):
+    """
+    Write the configuration file
+
+    result_dir     : result directory
+    conf_filename  : the original rose configuration file
+    template_conf  : small template configuration
+    rose_conf      : configuration object for conf_filename
+    model          : model name
+    diag           : diag name
+    index          : 0...n
+    start_date     : start date for this model (or '')
+    end_date       : end date for this model (or '')
+    """
+
+    # create the configuration from the template
+    conf = create_model_diag_conf(rose_conf, template_conf, 
+                                  model, diag, index, start_date, end_date)
+
+    # write the file
+    confilename = os.path.join(result_dir, conf_filename + '_{:09}'.format(index))
+    with open(confilename, 'w') as configfile:
+        conf.write(configfile)
+
 
 
 def get_all_sections_of_type(rose_conf, pat):
@@ -163,27 +194,51 @@ def main():
     # generate all the micro configuration files
     index = 0
     for diag in diags:
+
         diag_def = rose_conf['namelist:diags(' + diag + ')']
+        if diag_def['enabled'] == 'false':
+            # skip
+            print('info: skipping disabled diag {}...'.format(diag))
+            continue
+
         for model in models:
+
             model_def = rose_conf['namelist:models(' + model + ')']
-            start_date = model_def['start_date']
-            end_date = model_def['end_date']
+            if model_def['enabled'] == 'false':
+                # skip
+                print('info: skipping disabled model {}...'.format(model))
+                continue
 
-            split_dates = split_time_range(start_date, end_date, steps=args.num_years)
+            start_date = model_def.get('start_date', '')
+            end_date = model_def.get('end_date', '')
 
-            # iterate over the time windows
-            for i in range(len(split_dates) - 1):
+            if not start_date or not end_date:
 
-                sdt = split_dates[i]
-                edt = split_dates[i + 1]
+                # don't split in years
 
-                conf = create_model_diag_conf(rose_conf, template_conf, 
-                                              sdt, edt, model, diag, index)
-                # write the file
-                confilename = os.path.join(args.result_dir, args.conf_filename + '_{:06}'.format(index))
-                with open(confilename, 'w') as configfile:
-                    conf.write(configfile)
+                sdt = '' or start_date
+                edt = '' or end_date
+                print('info: no year parallelization in model {}...'.format(model))
+                write_rose_conf(args.result_dir, args.conf_filename, 
+                                template_conf, rose_conf, model, diag, index, 
+                                start_date=sdt, end_date=edt)
                 index += 1
+
+            else:
+
+                # start/end dates are defined for this model
+
+                split_dates = split_time_range(start_date, end_date, steps=args.num_years)
+
+                # iterate over the time windows
+                for i in range(len(split_dates) - 1):
+
+                    sdt = split_dates[i]
+                    edt = split_dates[i + 1]
+                    write_rose_conf(args.result_dir, args.conf_filename, 
+                                    template_conf, rose_conf, model, diag, index, 
+                                    start_date=sdt, end_date=edt)
+                    index += 1
 
 
 if __name__ == '__main__':
