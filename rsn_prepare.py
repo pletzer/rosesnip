@@ -106,7 +106,7 @@ def create_model_diag_conf(rose_conf, templ_conf, model, diag, index, start_date
 
 def write_rose_conf(result_dir, conf_filename, 
                     template_conf, rose_conf, model, diag, index, 
-                    start_date, end_date, num_digits):
+                    start_date, end_date):
     """
     Write the configuration file
 
@@ -126,7 +126,7 @@ def write_rose_conf(result_dir, conf_filename,
                                   model, diag, index, start_date, end_date)
 
     # write the file
-    fmt = '_{:0' + str(num_digits) + '}'
+    fmt = '_{}'
     confilename = os.path.join(result_dir, conf_filename + fmt.format(index))
     with open(confilename, 'w') as configfile:
         conf.write(configfile)
@@ -170,7 +170,6 @@ def main():
     print('models            : {}'.format(models))
     print('diags             : {}'.format(diags))
     print('{} models x {} diagnostics'.format(len(models), len(diags)))
-    num_digits = int(numpy.log10(len(models) * len(diags))) + 3
 
     # prepare the result directory, choosing its name, creating it or
     # cleaning its content
@@ -223,7 +222,7 @@ def main():
                 print('info: no year parallelization in model {}...'.format(model))
                 write_rose_conf(args.result_dir, args.conf_filename, 
                                 template_conf, rose_conf, model, diag, index, 
-                                start_date=sdt, end_date=edt, num_digits=num_digits)
+                                start_date=sdt, end_date=edt)
                 index += 1
 
             else:
@@ -239,7 +238,7 @@ def main():
                     edt = split_dates[i + 1]
                     write_rose_conf(args.result_dir, args.conf_filename, 
                                     template_conf, rose_conf, model, diag, index, 
-                                    start_date=sdt, end_date=edt, num_digits=num_digits)
+                                    start_date=sdt, end_date=edt)
                     index += 1
 
 
