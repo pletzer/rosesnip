@@ -24,7 +24,7 @@ SUITE_RC_TEMPLATE = \
         graph = run<procid> => stitch
 [runtime]
     [[run<procid>]]
-        script = "{abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v"
+        script = "export SCITOOLS_MODULE=none; {abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v"
     [[stitch]]
         script = "echo TO DO"
 """
@@ -52,7 +52,7 @@ SUITE_RC_TEMPLATE_SLURM = \
             --tasks=1
             --cpus-per-task=1
     [[run<procid>]]
-        script = "{abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v"
+        script = "export SCITOOLS_MODULE=none; {abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v"
     [[stitch]]
         script = "echo TO DO"
 """
