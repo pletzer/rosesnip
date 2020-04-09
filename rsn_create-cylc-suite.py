@@ -50,8 +50,13 @@ def main():
     	                      help='Name of afterburner app')
     parser.add_argument('-m', dest='max_num_concurrent_jobs', default=2, 
     	                      help='max number of concurrent jobs')
-
     args = parser.parse_args()
+
+    if args.result_dir[0] != '/':
+        args.result_dir = os.getcwd() + '/' + args.result_dir
+
+    if args.abrun_exec[0] != '/':
+        args.abrun_exec = os.getcwd() + '/' + args.abrun_exec
 
     conf_file_base, max_index = gather_in_directory(args.result_dir)
 
