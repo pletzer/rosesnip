@@ -50,6 +50,7 @@ RUN_TEMPLATE = \
 """
 export TERM=xterm
 export SCITOOLS_MODULE=none
+export PYTHON_EXEC={python_exec}
 module load module load Anaconda3/2020.02-GCC-7.1.0
 module load PROJ
 module load UDUNITS
@@ -81,6 +82,7 @@ def main():
     parser.add_argument('-m', dest='max_num_concurrent_jobs', default=2, 
                               help='max number of concurrent jobs')
     parser.add_argument('-s', dest='slurm', action='store_true', help='create suite.rc file for SLURM scheduler')
+    parser.add_argument('-p', dest='python_exec', default='python', help='path to python executable')
     args = parser.parse_args()
 
     if args.result_dir[0] != '/':
@@ -102,28 +104,31 @@ def main():
     conf_file_base, max_index = gather_in_directory(args.result_dir)
 
     # parameters
-    d = {
+    params = {
         'max_index': max_index,
         'max_num_concurrent_jobs': args.max_num_concurrent_jobs,
         'abrun_exec': args.abrun_exec,
+        'python_exec': args.python_exec,
         'app_name': args.app_name,
         'conf_file_base': conf_file_base,
         'batch': '',
         'pwd': os.getcwd(),
         }
     if args.slurm:
-        d['batch'] = SLURM_TEMPLATE
+        params['batch'] = SLURM_TEMPLATE
 
     # create run script
-    with open('rsn_run.sh', 'w') as f:
-        f.write(RUN_TEMPLATE.format(**d))
+    run_filename = 'rsn_run.sh'
+    with open(run_filename, 'w') as f:
+        f.write(RUN_TEMPLATE.format(**params))
+    print('Run script is {}.'.format(run_filename))
 
     # create suite.rc
-    suite_name = 'suite.rc'
-    with open(suite_name, 'w') as f:
-        f.write(SUITE_RC_TEMPLATE.format(**d))
+    suite_filename = 'suite.rc'
+    with open(suite_filename, 'w') as f:
+        f.write(SUITE_RC_TEMPLATE.format(**params))
     
-    print('Cylc suite written in file {}.'.format(suite_name))
+    print('Cylc suite file is {}.'.format(suite_filename))
 
 if __name__ == '__main__':
     main()

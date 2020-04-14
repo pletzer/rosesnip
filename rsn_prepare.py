@@ -50,7 +50,7 @@ def split_time_range(start_date, end_date, steps=1):
     return res
 
 
-def generate_template_conf(rose_conf, output_dir):
+def generate_template_conf(rose_conf, result_dir):
     """
     Returns a template configuration without models or diags
 
@@ -64,8 +64,8 @@ def generate_template_conf(rose_conf, output_dir):
             # not a model and not a diag section so add
             conf[section] = rose_conf[section]
 
-    # set the output_dir
-    conf['general']['output_dir'] = output_dir
+    # set the result_dir
+    conf['general']['output_dir'] = result_dir
 
     return conf 
 
@@ -160,6 +160,8 @@ def main():
     args = parser.parse_args()
 
     # read the configuration file
+    if not os.path.exists(args.conf_filename):
+    	raise FileNotFoundError('File {} does not exist!'.format(args.conf_filename))
     rose_conf = ConfigParser()
     rose_conf.read(args.conf_filename)
 
@@ -190,7 +192,7 @@ def main():
                 os.remove(f)
 
     # create a small template conf file without models or diags
-    template_conf = generate_template_conf(rose_conf, output_dir=args.result_dir)
+    template_conf = generate_template_conf(rose_conf, result_dir=args.result_dir)
 
     # generate all the micro configuration files
     index = 0
