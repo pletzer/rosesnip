@@ -60,7 +60,9 @@ export PYTHON_EXEC={python_exec}
 module load module load Anaconda3/2020.02-GCC-7.1.0
 module load PROJ
 module load UDUNITS
+set +u # ignore undefined variables, takes care of a tput error
 {abrun_exec} {app_name} -c {conf_file_base}_${{1}} -v
+set -u # restore 
 module unload UDUNITS
 module unload PROJ
 module unload module load Anaconda3/2020.02-GCC-7.1.0
