@@ -48,6 +48,12 @@ SLURM_TEMPLATE = \
 
 RUN_TEMPLATE = \
 """
+# This file is autogeneraterd, do not edit
+
+if [ $# == 0 ]; then
+    echo "ERROR: $0 expects one argument (index in the range 0...)"
+    exit 1
+fi
 export TERM=xterm
 export SCITOOLS_MODULE=none
 export PYTHON_EXEC={python_exec}
