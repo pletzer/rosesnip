@@ -12,9 +12,11 @@ SUITE_RC_TEMPLATE = \
 """
 [meta]
     title = "Submit parallel monitor jobs"
+
 [cylc]
     [[parameters]]
         procid = 0..{max_index}
+
 [scheduling]
    [[queues]]
        [[[default]]]
@@ -22,39 +24,29 @@ SUITE_RC_TEMPLATE = \
            limit = {max_num_concurrent_jobs}   
    [[dependencies]]
         graph = run<procid> => stitch
+
 [runtime]
+    {batch}
     [[run<procid>]]
-        script = "export SCITOOLS_MODULE=none; {abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v"
+        script = '''
+conda activate irisenv
+export SCITOOLS_MODULE=none
+module load PROJ
+{abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v
+'''
     [[stitch]]
         script = "echo TO DO"
 """
 
-SUITE_RC_TEMPLATE_SLURM = \
+SLURM_TEMPLATE = \
 """
-[meta]
-    title = "Submit parallel monitor jobs"
-[cylc]
-    [[parameters]]
-        procid = 0..{max_index}
-[scheduling]
-   [[queues]]
-       [[[default]]]
-           # max number of concurrent jobs
-           limit = {max_num_concurrent_jobs}   
-   [[dependencies]]
-        graph = run<procid> => stitch
-[runtime]
-    [[root]] # suite default
+    [[root]]
         [[[job]]]
             batch system = slurm
             execution time limit = PT1H
         [[[directives]]]
             --tasks=1
             --cpus-per-task=1
-    [[run<procid>]]
-        script = "export SCITOOLS_MODULE=none; {abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v"
-    [[stitch]]
-        script = "echo TO DO"
 """
 
 def gather_in_directory(result_dir):
@@ -70,15 +62,15 @@ def gather_in_directory(result_dir):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Generate CYLC suite.')
-    parser.add_argument('-d', dest='result_dir', default='', help='specify result directory')
+    parser = argparse.ArgumentParser(description='Generate CYLC suite.rc file.')
+    parser.add_argument('-d', dest='result_dir', default='', help='specify result directory (output of rsn_prepare.py)')
     parser.add_argument('-a', dest='abrun_exec', default='./abrun.sh', 
-                              help='path of abrun.sh executable')
+                              help='full path to abrun.sh executable')
     parser.add_argument('-A', dest='app_name', default='NetcdfModelMonitor', 
-                              help='Name of afterburner app')
+                              help='name of afterburner app')
     parser.add_argument('-m', dest='max_num_concurrent_jobs', default=2, 
                               help='max number of concurrent jobs')
-    parser.add_argument('-s', dest='slurm', action='store_true', help='submit to SLURM scheduler')
+    parser.add_argument('-s', dest='slurm', action='store_true', help='create suite.rc file for SLURM scheduler')
     args = parser.parse_args()
 
     if args.result_dir[0] != '/':
@@ -108,11 +100,12 @@ def main():
             'abrun_exec': args.abrun_exec,
             'app_name': args.app_name,
             'conf_file_base': conf_file_base,
+            'batch': '',
         }
+
         if args.slurm:
-            f.write(SUITE_RC_TEMPLATE_SLURM.format(**d))
-        else:
-            f.write(SUITE_RC_TEMPLATE.format(**d))
+            d['batch'] = SLURM_TEMPLATE
+        f.write(SUITE_RC_TEMPLATE.format(**d))
     print('Cylc suite written in file {}.'.format(suite_name))
 
 if __name__ == '__main__':
