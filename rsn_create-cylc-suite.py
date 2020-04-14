@@ -29,10 +29,7 @@ SUITE_RC_TEMPLATE = \
     {batch}
     [[run<procid>]]
         script = '''
-conda activate irisenv
-export SCITOOLS_MODULE=none
-module load PROJ
-{abrun_exec} {app_name} -c {conf_file_base}_${{CYLC_TASK_PARAM_procid}} -v
+sh {pwd}/rsn_run.sh ${{CYLC_TASK_PARAM_procid}}
 '''
     [[stitch]]
         script = "echo TO DO"
@@ -47,6 +44,19 @@ SLURM_TEMPLATE = \
         [[[directives]]]
             --tasks=1
             --cpus-per-task=1
+"""
+
+RUN_TEMPLATE = \
+"""
+export TERM=xterm
+export SCITOOLS_MODULE=none
+module load module load Anaconda3/2020.02-GCC-7.1.0
+module load PROJ
+module load UDUNITS
+{abrun_exec} {app_name} -c {conf_file_base}_${{1}} -v
+module unload UDUNITS
+module unload PROJ
+module unload module load Anaconda3/2020.02-GCC-7.1.0
 """
 
 def gather_in_directory(result_dir):
@@ -91,21 +101,28 @@ def main():
 
     conf_file_base, max_index = gather_in_directory(args.result_dir)
 
+    # parameters
+    d = {
+        'max_index': max_index,
+        'max_num_concurrent_jobs': args.max_num_concurrent_jobs,
+        'abrun_exec': args.abrun_exec,
+        'app_name': args.app_name,
+        'conf_file_base': conf_file_base,
+        'batch': '',
+        'pwd': os.getcwd(),
+        }
+    if args.slurm:
+        d['batch'] = SLURM_TEMPLATE
+
+    # create run script
+    with open('rsn_run.sh', 'w') as f:
+        f.write(RUN_TEMPLATE.format(**d))
+
     # create suite.rc
     suite_name = 'suite.rc'
     with open(suite_name, 'w') as f:
-        d = {
-            'max_index': max_index,
-            'max_num_concurrent_jobs': args.max_num_concurrent_jobs,
-            'abrun_exec': args.abrun_exec,
-            'app_name': args.app_name,
-            'conf_file_base': conf_file_base,
-            'batch': '',
-        }
-
-        if args.slurm:
-            d['batch'] = SLURM_TEMPLATE
         f.write(SUITE_RC_TEMPLATE.format(**d))
+    
     print('Cylc suite written in file {}.'.format(suite_name))
 
 if __name__ == '__main__':
