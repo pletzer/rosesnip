@@ -1,9 +1,9 @@
 import sys
+if sys.version_info.major < 3:
+    raise RuntimeError('ERROR: Need python 3 but got python {}'.format(sys.version_info.major))
 import argparse
-if sys.version_info.major >= 3:
-    from configparser import ConfigParser
-else:
-    from ConfigParser import ConfigParser
+# requires Python 3
+from configparser import ConfigParser
 import os
 import re
 from datetime import datetime
