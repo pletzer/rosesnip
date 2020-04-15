@@ -57,7 +57,6 @@ fi
 
 export SCITOOLS_MODULE=none
 export PYTHON_EXEC={python_exec}
-module load Anaconda2/2019.10-GCC-7.1.0
 module load PROJ
 module load UDUNITS
 set +u # ignore undefined variables, takes care of a tput error
@@ -68,7 +67,6 @@ set +u # ignore undefined variables, takes care of a tput error
 set -u # restore 
 module unload UDUNITS
 module unload PROJ
-module unload Anaconda2/2019.10-GCC-7.1.0
 """
 
 def gather_in_directory(result_dir):
