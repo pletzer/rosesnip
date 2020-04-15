@@ -161,7 +161,7 @@ def main():
 
     # read the configuration file
     if not os.path.exists(args.conf_filename):
-    	raise FileNotFoundError('File {} does not exist!'.format(args.conf_filename))
+        raise FileNotFoundError('File {} does not exist!'.format(args.conf_filename))
     rose_conf = ConfigParser()
     rose_conf.read(args.conf_filename)
 
@@ -178,10 +178,12 @@ def main():
     if not args.result_dir:
         # generate name for temporary directory
         dt =  datetime.now()
-        args.result_dir = os.getcwd() + '/' + \
+        args.result_dir = \
            'result_{:02}{:02}{:02}T{:02}h{:02}m{:02}s'.format(dt.year, dt.month, dt.day, 
-                                                               dt.hour, dt.minute, dt.second)
-        print('saving results in dir: {}.'.format(args.result_dir))
+                                                              dt.hour, dt.minute, dt.second)
+    if args.result_dir[0] != '/':
+        # add the full path
+        args.result_dir = os.getcwd() + '/' + args.result_dir
     # create output directory if not present
     if not os.path.exists(args.result_dir):
         os.mkdir(args.result_dir)
@@ -190,6 +192,7 @@ def main():
             # remove all the files
             for f in os.listdir(args.result_dir):
                 os.remove(f)
+    print('saving results in dir: {}.'.format(args.result_dir))
 
     # create a small template conf file without models or diags
     template_conf = generate_template_conf(rose_conf, result_dir=args.result_dir)
