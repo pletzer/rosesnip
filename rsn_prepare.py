@@ -9,7 +9,6 @@ import re
 from datetime import datetime
 import copy
 import numpy
-from shutil import copyfile
 
 """
 Prepare micro rose configuration files for parallel processing
@@ -195,8 +194,13 @@ def main():
                 os.remove(f)
     print('saving results in dir: {}.'.format(args.result_dir))
 
-    copyfile(args.conf_filename, args.result_dir + '/' + \
-        os.path.basename(args.conf_filename))
+    # copy the original rose config file and reset the output directory to point
+    # to args.result_dir
+    ori_conf = ConfigParser()
+    ori_conf.read(args.conf_filename)
+    ori_conf['general']['output_dir'] = args.result_dir
+    with open(args.result_dir + '/' + os.path.basename(args.conf_filename), 'w') as f:
+        ori_conf.write(f)
 
     # create a small template conf file without models or diags
     template_conf = generate_template_conf(rose_conf, result_dir=args.result_dir)
