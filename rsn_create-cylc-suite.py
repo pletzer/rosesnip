@@ -23,14 +23,30 @@ SUITE_RC_TEMPLATE = \
            # max number of concurrent jobs
            limit = {max_num_concurrent_jobs}   
    [[dependencies]]
-        graph = run<procid> => stitch
+        graph = '''run<procid> => stitch_netcdf_files
+                   stitch_netcdf_files => generate_html
+                '''
 
 [runtime]
     {batch}
     [[run<procid>]]
         script = "sh {pwd}/rsn_run.sh ${{CYLC_TASK_PARAM_procid}}"
-    [[stitch]]
+    [[stitch_netcdf_files]]
         script = "sh {pwd}/rsn_stitch.sh {result_dir}"
+    [[generate_html]]
+        script = '''
+export SCITOOLS_MODULE=none
+export PYTHON_EXEC={python_exec}
+module load PROJ
+module load UDUNITS
+set +u # ignore undefined variables, takes care of a tput error
+{abrun_exec} HtmlGenerator -c {conf_file_base} -v
+set -u
+module unload UDUNITS
+module unload PROJ
+unset PYTHON_EXEC
+unset SCITOOLS_MODULE
+'''
 """
 
 SLURM_TEMPLATE = \
