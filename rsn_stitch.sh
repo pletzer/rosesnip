@@ -51,7 +51,14 @@ for statop in $(ls -d $result_dir/nc/*); do
 
             # name of the time merged file. Take the first file and remove the
             # indexing
-            outname=$(echo $file_list | awk '{print $1;}' | sed 's/\_[0-9]*\.nc/.nc/')
+            out=$(echo $file_list | awk '{print $1;}' | sed 's/\_[0-9]*\.nc/.nc/')
+            # build the output file name and full path
+	    out_dir=$(dirname $out)
+	    out_base=$(basename $out)
+	    # replace land_global by global, seems to be required
+	    out_base=$(echo $out_base | sed 's/land_global/global/')
+            # the output file has to be one level above
+	    outname="$out_dir/../$out_base"
 
             # merge time command
             cdo mergetime $file_list $outname
