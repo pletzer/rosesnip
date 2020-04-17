@@ -50,10 +50,8 @@ def main():
     diag_map = get_diag2model_map(ncfiles)
     print(diag_map)
 
-    linecolor = ['-', '-.', '--', ':', ]
-    nline = len(linecolor)
-    markertype = ['x', '+', '*', '<', '>', 's', , 'D']
-    nmark = len(markertype)
+    linetype = ['-', '-.', '--', ':', ]
+    nline = len(linetype)
 
     # generate plots, one for each diagnostic
     for diag, mf in diag_map.items():
@@ -62,7 +60,7 @@ def main():
         count = 0
         for model, ncfile in mf:
             x, y = get_time_series_data_from_netcdf_file(ncfile, diag)
-            pylab.plot(x, y, linecolor[count % nline] + markertype[count % nmark])
+            pylab.plot(x, y, linetype[count % nline])
             legs.append(model)
             count += 1
             
