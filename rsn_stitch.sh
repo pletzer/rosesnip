@@ -47,7 +47,7 @@ for statop in $(ls -d $result_dir/nc/*); do
         for stashcode in $stashcode_list; do
 
             # get all the files for this model and stashcode
-            file_list=$(ls $res_dir/${model}_*_${stashcode}_*.nc)
+            file_list=$(ls $res_dir/${model}_*_${stashcode}_*_[0-9]*.nc)
 
             # name of the time merged file. Take the first file and remove the
             # indexing
