@@ -26,10 +26,18 @@ def get_diag2model_map(ncfiles):
 def get_time_series_data_from_netcdf_file(ncfile, diag):
     nc = netCDF4.Dataset(ncfile, 'r')
     print(ncfile)
-    y = nc.variables[diag][:]
-    x = nc.variables['time'][:]
+    yv = nc.variables[diag]
+    xv = nc.variables['time']
+    y = yv[:]
+    x = xv[:]
+    # attach attributes
+    ylabel = getattr(yv, 'standard_name', '') + '[' + \
+             getattr(yv, 'units', '-') + ']'
+    xlabel = getattr(xv, 'standard_name', '') + '[' + \
+             getattr(xv, 'units', '-') + ']'
+
     nc.close()
-    return x, y
+    return x, y, xlabel, ylabel
 
 
 def main():
@@ -59,11 +67,12 @@ def main():
 
         count = 0
         for model, ncfile in mf:
-            x, y = get_time_series_data_from_netcdf_file(ncfile, diag)
+            x, y, xlabel, ylabel = get_time_series_data_from_netcdf_file(ncfile, diag)
             pylab.plot(x, y, linetype[count % nline])
             legs.append(model)
             count += 1
-            
+        pylab.ylabel(ylabel)
+        pylab.xlabel(xlabel)
         pylab.title(diag)
         pylab.legend(legs)
         pylab.savefig(args.result_dir + '/images/{}.png'.format(diag))
