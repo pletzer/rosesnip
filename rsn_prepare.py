@@ -153,7 +153,7 @@ def get_all_sections_of_type(rose_conf, pat):
 def main():
 
     rsn_config = ConfigParser()
-    rsn.read('rosesnip.rc')
+    rsn_config.read('rosesnip.rc')
 
     parser = argparse.ArgumentParser(description='Prepare parallel rose config files.')
     parser.add_argument('-c', dest='conf_filename', default='rose-app-expanded.conf', 
