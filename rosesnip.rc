@@ -1,0 +1,13 @@
+[abrun]
+
+  # full path to the python executable
+  python_exec = python
+
+  # full path to abrun.sh
+  abrun_exec = abrun.sh
+
+  app_name = NetcfModelMonitor
+
+[general]
+  num_years = 10
+  max_num_concurrent_jobs = 20
