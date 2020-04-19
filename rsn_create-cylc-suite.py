@@ -90,16 +90,19 @@ def gather_in_directory(result_dir):
 
 def main():
 
+    rsn_config = ConfigParser()
+    rsn_config.read('rosesnip.rc')
+
     parser = argparse.ArgumentParser(description='Generate CYLC suite.rc file.')
     parser.add_argument('-d', dest='result_dir', default='', help='specify result directory (output of rsn_prepare.py)')
-    parser.add_argument('-a', dest='abrun_exec', default='./abrun.sh', 
+    parser.add_argument('-a', dest='abrun_exec', default=rsn_config['afterburner']['abrun_exec'], 
                               help='full path to abrun.sh executable')
-    parser.add_argument('-A', dest='app_name', default='NetcdfModelMonitor', 
+    parser.add_argument('-A', dest='app_name', default=rsn_config['afterburner']['app_name'],
                               help='name of afterburner app')
-    parser.add_argument('-m', dest='max_num_concurrent_jobs', default=2, 
+    parser.add_argument('-m', dest='max_num_concurrent_jobs', default=rsn_config['general']['max_num_concurrent_jobs'], 
                               help='max number of concurrent jobs')
     parser.add_argument('-s', dest='slurm', action='store_true', help='create suite.rc file for SLURM scheduler')
-    parser.add_argument('-p', dest='python_exec', default='/opt/nesi/CS500_centos7_skl/Anaconda2/2019.10-GCC-7.1.0/bin/python', 
+    parser.add_argument('-p', dest='python_exec', default=rsn_config['afterburner']['python_exec'], 
                               help='path to python executable')
     args = parser.parse_args()
 

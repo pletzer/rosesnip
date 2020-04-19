@@ -9,6 +9,7 @@ import re
 from datetime import datetime
 import copy
 import numpy
+from configparser impoert ConfigParser
 
 """
 Prepare micro rose configuration files for parallel processing
@@ -151,11 +152,15 @@ def get_all_sections_of_type(rose_conf, pat):
 
 def main():
 
+    rsn_config = Configparser()
+    rsn.read('rosesnip.rc')
+
     parser = argparse.ArgumentParser(description='Prepare parallel rose config files.')
     parser.add_argument('-c', dest='conf_filename', default='rose-app-expanded.conf', 
                            help='serial rose config file, for instance "rose-app-expanded.conf"')
     parser.add_argument('-d', dest='result_dir', default='', help='specify result directory')
-    parser.add_argument('-y', dest='num_years', type=int, default=10, help='number of years in each processor group')
+    parser.add_argument('-y', dest='num_years', type=int, default=rsn_config['general']['num_years'], 
+                              help='number of years in each processor group')
     parser.add_argument('-C', dest='clear', action='store_true', help='start by removing any files in output directory')
     args = parser.parse_args()
 

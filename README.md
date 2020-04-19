@@ -13,7 +13,7 @@ Roasesnip takes the same input as afterburner - a rose configuration file - and 
 Edit `rosesnip.rc` and enter the full path to the `abrun.sh` and `python` executables. Note that currently afterburner requires python 2. For example:
 
 ```
-[abrun]
+[afterburner]
     ...
     abrun_exec = /nesi/nobackup/nesi99999/pletzera/niwa00013/nesi/turbofan/pletzer/bin/abrun.sh
     python_exec = /opt/nesi/CS500_centos7_skl/Anaconda2/2019.10-GCC-7.1.0/bin/python
