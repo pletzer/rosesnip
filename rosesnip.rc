@@ -1,13 +1,13 @@
 [afterburner]
 
   # full path to the python executable
-  python_exec = python
+  python_exec = /opt/nesi/CS500_centos7_skl/Anaconda2/2019.10-GCC-7.1.0/bin/python
 
   # full path to abrun.sh
-  abrun_exec = abrun.sh
+  abrun_exec = /nesi/nobackup/nesi99999/pletzera/niwa00013/nesi/turbofan/pletzer/bin/abrun.sh
 
   app_name = NetcfModelMonitor
 
 [general]
   num_years = 10
-  max_num_concurrent_jobs = 20
+  max_num_concurrent_jobs = 40
