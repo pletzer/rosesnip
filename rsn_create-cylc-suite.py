@@ -31,7 +31,7 @@ SUITE_RC_TEMPLATE = \
 [runtime]
     {batch}
     [[run<procid>]]
-        script = "sh {pwd}/rsn_run.sh ${{CYLC_TASK_PARAM_procid}}"
+        script = "sh {result_dir}/rsn_run.sh ${{CYLC_TASK_PARAM_procid}}"
     [[stitch_netcdf_files]]
         script = "sh {pwd}/rsn_stitch.sh {result_dir}"
     [[generate_plot]]
@@ -141,13 +141,13 @@ def main():
         params['batch'] = SLURM_TEMPLATE
 
     # create run script
-    run_filename = 'rsn_run.sh'
+    run_filename = '{result_dir}/rsn_run.sh'.format(**params)
     with open(run_filename, 'w') as f:
         f.write(RUN_TEMPLATE.format(**params))
     print('Run script is {}.'.format(run_filename))
 
     # create suite.rc
-    suite_filename = 'suite.rc'
+    suite_filename = '{result_dir}/suite.rc'.format(**params)
     with open(suite_filename, 'w') as f:
         f.write(SUITE_RC_TEMPLATE.format(**params))
     
