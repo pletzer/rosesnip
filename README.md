@@ -10,6 +10,12 @@ Roasesnip takes the same input as afterburner - a rose configuration file - and 
 
 ## Initial setup
 
+Rosesnip requires:
+ * Python 3.x
+ * Iris 2.x
+ * Afterburner
+ * Cylc 7.x
+
 Edit `rosesnip.rc` and enter the full path to the `abrun.sh` and `python` executables. Note that currently afterburner requires python 2. For example:
 
 ```

@@ -9,7 +9,7 @@ import re
 from datetime import datetime
 import copy
 import numpy
-from configparser impoert ConfigParser
+from configparser import ConfigParser
 
 """
 Prepare micro rose configuration files for parallel processing
