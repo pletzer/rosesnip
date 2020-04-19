@@ -6,7 +6,7 @@
   # full path to abrun.sh
   abrun_exec = /nesi/nobackup/nesi99999/pletzera/niwa00013/nesi/turbofan/pletzer/bin/abrun.sh
 
-  app_name = NetcfModelMonitor
+  app_name = NetcdfModelMonitor
 
 [general]
   num_years = 10
