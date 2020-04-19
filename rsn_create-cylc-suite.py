@@ -3,6 +3,7 @@ import argparse
 import os
 import glob
 import re
+from configparser import ConfigParser
 
 """
 Generate a cylc suite
