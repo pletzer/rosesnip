@@ -6,8 +6,9 @@ if sys.version_info.major < 3:
 import argparse
 # requires Python 3
 from configparser import ConfigParser
-import netCDF4
 from matplotlib import pylab
+import iris
+import iris.plot
 
 
 def get_model_diag_from_filename(ncfile):
@@ -24,25 +25,21 @@ def get_diag2model_map(ncfiles):
     return d
 
 def get_time_series_data_from_netcdf_file(ncfile, diag):
-    nc = netCDF4.Dataset(ncfile, 'r')
-    print(ncfile)
-    yv = nc.variables[diag]
-    xv = nc.variables['time']
-    y = yv[:]
-    x = xv[:]
+    cube = iris.load_cube(ncfile)
+    t = cube.coords()[0]
     # attach attributes
-    ylabel = getattr(yv, 'standard_name', '') + '[' + \
-             getattr(yv, 'units', '-') + ']'
-    xlabel = getattr(xv, 'standard_name', '') + '[' + \
-             getattr(xv, 'units', '-') + ']'
-
-    nc.close()
-    return x, y, xlabel, ylabel
+    ylabel = repr(getattr(cube, 'standard_name', '')) + ' [' + \
+             repr(getattr(cube, 'units', '-')) + ']'
+    xlabel = repr(getattr(t, 'standard_name', '')) + ' [' + \
+             repr(getattr(t, 'units', '-')) + ']'
+    return cube, xlabel, ylabel
 
 
 def main():
     parser = argparse.ArgumentParser(description='Plot results.')
     parser.add_argument('-d', dest='result_dir', default='', help='specify result directory')
+    parser.add_argument('-I', dest='interactive', action='store_true', 
+                      help='create interactive plot')
     args = parser.parse_args()
 
     if args.result_dir[0] != '/':
@@ -67,15 +64,18 @@ def main():
 
         count = 0
         for model, ncfile in mf:
-            x, y, xlabel, ylabel = get_time_series_data_from_netcdf_file(ncfile, diag)
-            pylab.plot(x, y, linetype[count % nline])
+            cube, xlabel, ylabel = get_time_series_data_from_netcdf_file(ncfile, diag)
+            iris.plot.plot(cube, linetype[count % nline])
             legs.append(model)
             count += 1
         pylab.ylabel(ylabel)
         pylab.xlabel(xlabel)
         pylab.title(diag)
         pylab.legend(legs)
-        pylab.savefig(args.result_dir + '/images/{}.png'.format(diag))
+        if args.interactive:
+            pylab.show()
+        else:
+            pylab.savefig(args.result_dir + '/images/{}.png'.format(diag))
 
 
 if __name__ == '__main__':

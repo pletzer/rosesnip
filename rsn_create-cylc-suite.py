@@ -36,7 +36,9 @@ SUITE_RC_TEMPLATE = \
     [[generate_plot]]
         script = '''
 module load Anaconda3/2020.02-GCC-7.1.0
+module load UDUNITS
 python {pwd}/rsn_plot.py -d {result_dir}
+module unload UDUNITS
 module unload Anaconda3/2020.02-GCC-7.1.0
 '''
 """
