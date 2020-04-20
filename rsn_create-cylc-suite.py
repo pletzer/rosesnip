@@ -51,6 +51,7 @@ SLURM_TEMPLATE = \
             batch system = slurm
             execution time limit = PT1H
         [[[directives]]]
+            --export=NONE
             --tasks=1
             --cpus-per-task=1
 """
