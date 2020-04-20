@@ -14,7 +14,7 @@ Rosesnip requires:
  * Python 3.x
  * Iris 2.x
  * Afterburner
- * Cylc 7.x
+ * Cylc 7.8.x
 
 Edit `rosesnip.rc` and enter the full path to the `abrun.sh` and `python` executables.
 
@@ -29,7 +29,10 @@ Edit `rosesnip.rc` and enter the full path to the `abrun.sh` and `python` execut
 
 ## How to use rosesnip
 
-Running rosesnip involves three steps: (1) prepare the rose configureation files for parallel execution, (2) generate the cylc suit.rc file and (3) run the suite. 
+Running rosesnip involves three steps:
+ 1. prepare the rose configureation files for parallel execution
+ 2. generate the cylc suit.rc file
+ 3. run the suite
 
 
 ### Prepare the rose configuration files
@@ -46,7 +49,7 @@ This will create directory `my_res_dir` and split file `rose-app-expanded.conf` 
 python rsn_create-cylc-suite.py -d my_res_dir -s
 ```
 
-Theis will create file `suite.rc`. Use option `-s` option to create SLURM jobs. 
+This will create file `suite.rc`. Use option `-s` option to create SLURM jobs. 
 
 ### Submit the rosesnip job with cylc
 
