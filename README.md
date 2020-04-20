@@ -16,7 +16,7 @@ Rosesnip requires:
  * Afterburner
  * Cylc 7.x
 
-Edit `rosesnip.rc` and enter the full path to the `abrun.sh` and `python` executables. Note that currently afterburner requires python 2. For example:
+Edit `rosesnip.rc` and enter the full path to the `abrun.sh` and `python` executables.
 
 ```
 [afterburner]
