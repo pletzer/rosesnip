@@ -11,3 +11,5 @@
 [general]
   num_years = 10
   max_num_concurrent_jobs = 40
+  exec_time_limit = PT1H
+  python_module = Anaconda3/2020.02-GCC-7.1.0

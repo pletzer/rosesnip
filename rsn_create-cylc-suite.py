@@ -33,13 +33,7 @@ SUITE_RC_TEMPLATE = \
     [[stitch_netcdf_files]]
         script = "sh {pwd}/rsn_stitch.sh {result_dir}"
     [[generate_plot]]
-        script = '''
-module load Anaconda3/2020.02-GCC-7.1.0
-module load UDUNITS
-python {pwd}/rsn_plot.py -d {result_dir}
-module unload UDUNITS
-module unload Anaconda3/2020.02-GCC-7.1.0
-'''
+        script = "{python_exec} {pwd}/rsn_plot.py -d {result_dir}"
 """
 
 SLURM_TEMPLATE = \
@@ -47,7 +41,7 @@ SLURM_TEMPLATE = \
     [[root]]
         [[[job]]]
             batch system = slurm
-            execution time limit = PT1H
+            execution time limit = {exec_time_limit}
         [[[directives]]]
             --export=NONE
             --tasks=1
@@ -64,16 +58,12 @@ fi
 
 export SCITOOLS_MODULE=none
 export PYTHON_EXEC={python_exec}
-module load PROJ
-module load UDUNITS
 set +u # ignore undefined variables, takes care of a tput error
 
 # run the app
 {abrun_exec} {app_name} -c {conf_file_base}_${{1}} -v
 
 set -u # restore 
-module unload UDUNITS
-module unload PROJ
 """
 
 
@@ -104,6 +94,8 @@ def main():
     parser.add_argument('-s', dest='slurm', action='store_true', help='create suite.rc file for SLURM scheduler')
     parser.add_argument('-p', dest='python_exec', default=rsn_config['afterburner']['python_exec'], 
                               help='path to python executable')
+    parser.add_argument('-L', dest='exec_time_limit', default=rsn_config['general']['exec_time_limit'], 
+    	                      help='execution time limit for each task')
     args = parser.parse_args()
 
     if args.result_dir[0] != '/':
@@ -128,6 +120,7 @@ def main():
     params = {
         'max_index': max_index,
         'max_num_concurrent_jobs': args.max_num_concurrent_jobs,
+        'exec_time_limit': args.exec_time_limit,
         'abrun_exec': args.abrun_exec,
         'python_exec': args.python_exec,
         'app_name': args.app_name,
