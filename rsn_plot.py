@@ -40,13 +40,15 @@ def main():
     parser.add_argument('-d', dest='result_dir', default='', help='specify result directory')
     parser.add_argument('-I', dest='interactive', action='store_true', 
                       help='create interactive plot')
+    parser.add_argument('-l', dest='legend', action='store_true', 
+              help='add legend')
     args = parser.parse_args()
 
     if args.result_dir[0] != '/':
         # create absolute path
         args.result_dir = os.getcwd() + '/' + args.result_dir
 
-    # find all the onetcdf files
+    # find all the netcdf files
     ncfiles = glob.glob(args.result_dir + '/nc/*.nc')
     print('Looking at netCDF files {}...'.format([os.path.basename(ncf) for ncf in ncfiles]))
 
@@ -71,7 +73,6 @@ def main():
         pylab.ylabel(ylabel)
         pylab.xlabel(xlabel)
         pylab.title(diag)
-        pylab.legend(legs)
         if args.interactive:
             pylab.show()
         else:

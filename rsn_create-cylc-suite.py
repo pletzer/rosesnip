@@ -24,9 +24,7 @@ SUITE_RC_TEMPLATE = \
            # max number of concurrent jobs
            limit = {max_num_concurrent_jobs}   
    [[dependencies]]
-        graph = '''run<procid> => stitch_netcdf_files
-                   stitch_netcdf_files => generate_plot
-                '''
+        graph = "run<procid> => stitch_netcdf_files => generate_plot"
 
 [runtime]
     {batch}
