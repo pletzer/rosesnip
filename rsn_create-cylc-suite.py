@@ -130,7 +130,7 @@ def main():
         'result_dir': args.result_dir,
         }
     if args.slurm:
-        params['batch'] = SLURM_TEMPLATE
+        params['batch'] = SLURM_TEMPLATE.format(**params)
 
     # create run script
     run_filename = '{result_dir}/rsn_run.sh'.format(**params)

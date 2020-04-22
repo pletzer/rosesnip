@@ -210,6 +210,10 @@ def main():
     # create a small template conf file without models or diags
     template_conf = generate_template_conf(rose_conf, result_dir=args.result_dir)
 
+    no_year_parallelism_models = set()
+    disabled_diags = set()
+    disabled_models = set()
+
     # generate all the micro configuration files
     index = 0
     for diag in diags:
@@ -217,7 +221,7 @@ def main():
         diag_def = rose_conf['namelist:diags(' + diag + ')']
         if diag_def['enabled'] == 'false':
             # skip
-            print('info: skipping disabled diag {}...'.format(diag))
+            disabled_diags.add(diag)
             continue
 
         for model in models:
@@ -225,7 +229,7 @@ def main():
             model_def = rose_conf['namelist:models(' + model + ')']
             if model_def['enabled'] == 'false':
                 # skip
-                print('info: skipping disabled model {}...'.format(model))
+                disabled_models.add(model)
                 continue
 
             start_date = model_def.get('start_date', '')
@@ -233,11 +237,12 @@ def main():
 
             if not start_date or not end_date:
 
+                no_year_parallelism_models.add(model)
+
                 # don't split in years
 
                 sdt = '' or start_date
                 edt = '' or end_date
-                print('info: no year parallelization in model {}...'.format(model))
                 write_rose_conf(args.result_dir, args.conf_filename, 
                                 template_conf, rose_conf, model, diag, index, 
                                 start_date=sdt, end_date=edt)
@@ -258,6 +263,10 @@ def main():
                                     template_conf, rose_conf, model, diag, index, 
                                     start_date=sdt, end_date=edt)
                     index += 1
+
+    print('disabled diags: {}'.format(disabled_diags))
+    print('disabled models: {}'.format(disabled_models))
+    print('models with no parallelisation across years: {}'.format(no_year_parallelism_models))
 
 
 if __name__ == '__main__':
