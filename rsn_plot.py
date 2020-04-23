@@ -75,7 +75,10 @@ def main():
         if args.interactive:
             pylab.show()
         else:
-            pylab.savefig(args.result_dir + '/images/{}.png'.format(diag))
+            image_dir = args.result_dir + '/images'
+            if not os.path.exists(image_dir):
+                os.makedirs(image_dir)
+            pylab.savefig('{}/{}.png'.format(image_dir, diag))
 
 
 if __name__ == '__main__':
