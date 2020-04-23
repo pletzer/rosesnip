@@ -11,16 +11,17 @@ import iris
 import iris.plot
 
 
-def get_model_diag_from_filename(ncfile):
+def get_model_diag_statop_from_filename(ncfile):
     bn = os.path.basename(ncfile).split('_')
     model, diag = bn[0], bn[2]
-    return model, diag
+    statop = os.path.basename(os.path.dirname(ncfile))
+    return model, diag, statop
 
 def get_diag2model_map(ncfiles):
     d = {}
     for ncfile in ncfiles:
-        model, diag = get_model_diag_from_filename(ncfile)
-        v = d.get(diag, []) + [(model, ncfile)]
+        model, diag, statop = get_model_diag_statop_from_filename(ncfile)
+        v = d.get(diag, []) + [(model, statop, ncfile)]
         d[diag] = v
     return d
 
@@ -60,11 +61,11 @@ def main():
     nline = len(linetype)
 
     # generate plots, one for each diagnostic
-    for diag, mf in diag_map.items():
+    for diag, msf in diag_map.items():
         legs = []
 
         count = 0
-        for model, ncfile in mf:
+        for model, statop, ncfile in msf:
             cube, xlabel, ylabel = get_time_series_data_from_netcdf_file(ncfile, diag)
             iris.plot.plot(cube, linetype[count % nline])
             legs.append(model)
@@ -75,7 +76,7 @@ def main():
         if args.interactive:
             pylab.show()
         else:
-            image_dir = args.result_dir + '/images'
+            image_dir = args.result_dir + '/images/' + statop
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
             pylab.savefig('{}/{}.png'.format(image_dir, diag))
