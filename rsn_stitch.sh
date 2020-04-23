@@ -56,12 +56,13 @@ for nc_dir in $(ls -d $result_dir/tmp/nc/*); do
             # replace land_global by global, seems to be required
             out_base=$(echo $out_base | sed 's/land_global/global/')
             
+            # eg awmean, awsum, ...
             statop=$(basename $out_dir)
 
             # the output file has to be one level above
             #outname="$out_dir/../$out_base"
-            mkdir -p $result_dir/nc
-            outname="$result_dir/nc/$out_base"
+            mkdir -p $result_dir/nc/$statop
+            outname="$result_dir/nc/$statop/$out_base"
 
             # merge time command
             cdo mergetime $file_list $outname
