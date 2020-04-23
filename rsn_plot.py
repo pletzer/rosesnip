@@ -49,7 +49,7 @@ def main():
         args.result_dir = os.getcwd() + '/' + args.result_dir
 
     # find all the netcdf files
-    ncfiles = glob.glob(args.result_dir + '/nc/*.nc')
+    ncfiles = glob.glob(args.result_dir + '/nc/*/*.nc')
     print('Looking at netCDF files {}...'.format([os.path.basename(ncf) for ncf in ncfiles]))
 
     # create list of diagnostics
