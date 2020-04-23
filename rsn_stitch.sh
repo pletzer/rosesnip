@@ -12,20 +12,18 @@ result_dir="$1"
 module load CDO
 
 # each directory under nc/ maps to a statistic operation/diagnostic
-for statop in $(ls -d $result_dir/nc/*); do
+for nc_dir in $(ls -d $result_dir/tmp/nc/*); do
 
-    if [ -f $statop ]; then 
+    if [ -f $nc_dir ]; then 
         # not a directory
-        echo "Warning: $statop is not a directory, skipping..."
+        echo "Warning: $nc_dir is not a directory, skipping..."
         continue
     fi
-
-    res_dir="$statop"
 
     # collect all the (unique) models and stashcodes
     model_list=""
     stashcode_list=""
-    for filename in $(ls $res_dir/*.nc); do
+    for filename in $(ls $nc_dir/*.nc); do
 
         bn=$(basename $filename)
 
@@ -47,18 +45,23 @@ for statop in $(ls -d $result_dir/nc/*); do
         for stashcode in $stashcode_list; do
 
             # get all the files for this model and stashcode
-            file_list=$(ls $res_dir/${model}_*_${stashcode}_*_[0-9]*.nc)
+            file_list=$(ls $nc_dir/${model}_*_${stashcode}_*_[0-9]*.nc)
 
             # name of the time merged file. Take the first file and remove the
             # indexing
             out=$(echo $file_list | awk '{print $1;}' | sed 's/\_[0-9]*\.nc/.nc/')
             # build the output file name and full path
-	    out_dir=$(dirname $out)
-	    out_base=$(basename $out)
-	    # replace land_global by global, seems to be required
-	    out_base=$(echo $out_base | sed 's/land_global/global/')
+            out_dir=$(dirname $out)
+            out_base=$(basename $out)
+            # replace land_global by global, seems to be required
+            out_base=$(echo $out_base | sed 's/land_global/global/')
+            
+            statop=$(basename $out_dir)
+
             # the output file has to be one level above
-	    outname="$out_dir/../$out_base"
+            #outname="$out_dir/../$out_base"
+            mkdir -p $result_dir/nc
+            outname="$result_dir/nc/$out_base"
 
             # merge time command
             cdo mergetime $file_list $outname

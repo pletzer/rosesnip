@@ -66,7 +66,7 @@ def generate_template_conf(rose_conf, result_dir):
             conf[section] = rose_conf[section]
 
     # set the result_dir
-    conf['general']['output_dir'] = result_dir
+    conf['general']['output_dir'] = result_dir + '/tmp'
 
     return conf 
 

@@ -52,7 +52,6 @@ def main():
     ncfiles = glob.glob(args.result_dir + '/nc/*.nc')
     print('Looking at netCDF files {}...'.format([os.path.basename(ncf) for ncf in ncfiles]))
 
-
     # create list of diagnostics
     diag_map = get_diag2model_map(ncfiles)
     print(diag_map)
