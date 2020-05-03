@@ -160,7 +160,7 @@ def main():
                            help='serial rose config file, for instance "rose-app-expanded.conf"')
     parser.add_argument('-d', dest='result_dir', default='', help='specify result directory')
     parser.add_argument('-y', dest='num_years', type=int, default=rsn_config['general']['num_years'], 
-                              help='number of years in each processor group')
+                              help='number of years in each processor group (0 if not splitting in years)')
     parser.add_argument('-C', dest='clear', action='store_true', help='start by removing any files in output directory')
     args = parser.parse_args()
 
@@ -235,7 +235,7 @@ def main():
             start_date = model_def.get('start_date', '')
             end_date = model_def.get('end_date', '')
 
-            if not start_date or not end_date:
+            if not start_date or not end_date or args.num_years <= 0:
 
                 no_year_parallelism_models.add(model)
 
