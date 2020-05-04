@@ -5,7 +5,7 @@ A set of python scripts to automatically generate rose configuration files for p
 
 Postprocessing of climate data often involves computing averages and other statistical measures of diagnostic fields across models and for many simulation years. Afterburner is a Python application that performs these tasks. Currently, afterburner only runs on a single processor, which can make postprocessing slow. 
 
-Roasesnip takes the same input as afterburner - a rose configuration file - and splits the job into many jobs that can run concurrently. The jobs are split across diagnostic fields, models and, if start and end dates are provided, across chunks of years. The reduction in turn around time can be significant, depending on the number of diagnostics, models and the number of years.
+Rosesnip takes the same input as afterburner - a rose configuration file - and splits the job into many jobs that can run concurrently. The jobs are split across diagnostic fields, models and, if start and end dates are provided, across chunks of years. The reduction in turn around time can be significant, depending on the number of diagnostics, models and the number of years.
 
 
 ## Initial setup
