@@ -16,13 +16,14 @@ Rosesnip requires:
  * Afterburner
  * Cylc 7.8.x
 
-Edit `rosesnip.rc` and enter the full path to the `abrun.sh` and `python` executables.
+Edit `rosesnip.rc` and adapt the configuration for your environment. For instance
 
 ```
 [afterburner]
     ...
     abrun_exec = /nesi/nobackup/nesi99999/pletzera/niwa00013/nesi/turbofan/pletzer/bin/abrun.sh
     python_exec = /opt/nesi/CS500_centos7_skl/Anaconda2/2019.10-GCC-7.1.0/bin/python
+    account = 'nesi99999'
     ...
 ```
 

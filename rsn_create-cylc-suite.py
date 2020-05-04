@@ -43,6 +43,7 @@ SLURM_TEMPLATE = \
             batch system = slurm
             execution time limit = {exec_time_limit}
         [[[directives]]]
+            --account={account}
             --export=NONE
             --tasks=1
             --cpus-per-task=1
@@ -96,6 +97,8 @@ def main():
                               help='path to python executable')
     parser.add_argument('-L', dest='exec_time_limit', default=rsn_config['general']['exec_time_limit'], 
     	                      help='execution time limit for each task')
+    parser.add_argument('--account', dest='account', default=rsn_config['slurm']['account'], 
+    	                      help='SLURM account number')
     args = parser.parse_args()
 
     if args.result_dir[0] != '/':
@@ -128,6 +131,7 @@ def main():
         'batch': '',
         'pwd': os.getcwd(),
         'result_dir': args.result_dir,
+        'account': args.account,
         }
     if args.slurm:
         params['batch'] = SLURM_TEMPLATE.format(**params)
