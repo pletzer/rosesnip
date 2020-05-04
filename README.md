@@ -19,11 +19,12 @@ Rosesnip requires:
 Edit `rosesnip.rc` and adapt the configuration for your environment. For instance
 
 ```
-[afterburner]
-    ...
+    [afterburner]
     abrun_exec = /nesi/nobackup/nesi99999/pletzera/niwa00013/nesi/turbofan/pletzer/bin/abrun.sh
     python_exec = /opt/nesi/CS500_centos7_skl/Anaconda2/2019.10-GCC-7.1.0/bin/python
-    account = 'nesi99999'
+    ...
+    [slurm]
+     account = nesi99999
     ...
 ```
 
