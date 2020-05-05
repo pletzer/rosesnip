@@ -4,9 +4,9 @@
   python_exec = /opt/nesi/CS500_centos7_skl/Anaconda3/2020.02-GCC-7.1.0/bin/python
 
   # full path to abrun.sh
-  abrun_exec = /nesi/nobackup/nesi99999/pletzera/niwa00013/nesi/turbofan/pletzer/bin/abrun.sh
+  abrun_exec = /nesi/nobackup/nesi99999/pletzera/niwa00013/nesi/turbofan/trunk/bin/abrun.sh
 
-  app_name = NetcdfModelMonitor
+  app_name = ModelMonitor2
 
 [general]
   num_years = 0
