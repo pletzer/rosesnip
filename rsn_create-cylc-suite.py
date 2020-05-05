@@ -30,8 +30,8 @@ SUITE_RC_TEMPLATE = \
     {batch}
     [[run<procid>]]
         script = "sh {result_dir}/rsn_run.sh ${{CYLC_TASK_PARAM_procid}}"
-    [[stitch_netcdf_files]]
-        script = "sh {pwd}/rsn_stitch.sh {result_dir}"
+    [[stitch_netcdf_files]] 
+        script = "sh {pwd}/rsn_stitch.sh {result_dir} ${{CYLC_TASK_PARAM_procid}}"
     [[generate_plot]]
         script = "{python_exec} {pwd}/rsn_plot.py -d {result_dir}"
 """
@@ -62,7 +62,8 @@ export PYTHON_EXEC={python_exec}
 set +u # ignore undefined variables, takes care of a tput error
 
 # run the app
-{abrun_exec} {app_name} -c {conf_file_base}_${{1}} -v
+index=$(printf "%05d" $1)
+{abrun_exec} {app_name} -c {result_dir}/$index/{conf_file_base} -v
 
 set -u # restore 
 """
@@ -70,12 +71,12 @@ set -u # restore
 
 def gather_in_directory(result_dir):
 
-    files = glob.glob(result_dir + '/*.conf_[0-9]*')
-    if len(files) == 0:
-        print('Warning: could not find any *.conf_[0-9]* files under {}'.format(result_dir))
+    directories = [d for d in os.listdir(result_dir) if re.match(r'\d+', d)]
+    if len(directories) == 0:
+        print('Warning: could not find any [0-9]+ directories under {}'.format(result_dir))
         return '', 0
-    conf_file_base = re.sub('.conf_([0-9]*)', '.conf', files[0])
-    max_index = len(files) - 1
+    conf_file_base = os.path.basename( glob.glob(result_dir + '/' + directories[0] + '/*.conf')[0] )
+    max_index = len(directories) - 1
 
     return conf_file_base, max_index
 
@@ -96,11 +97,12 @@ def main():
     parser.add_argument('-p', dest='python_exec', default=rsn_config['afterburner']['python_exec'], 
                               help='path to python executable')
     parser.add_argument('-L', dest='exec_time_limit', default=rsn_config['general']['exec_time_limit'], 
-    	                      help='execution time limit for each task')
+                            help='execution time limit for each task')
     parser.add_argument('--account', dest='account', default=rsn_config['slurm']['account'], 
-    	                      help='SLURM account number')
+                            help='SLURM account number')
     args = parser.parse_args()
 
+    # make sure we dealing with full paths
     if args.result_dir[0] != '/':
         args.result_dir = os.getcwd() + '/' + args.result_dir
 
@@ -111,7 +113,6 @@ def main():
     if not os.path.exists(args.result_dir):
         print('ERROR: result dir {} does not exist'.format(args.result_dir))
         sys.exit(1)
-
 
     if not os.path.exists(args.abrun_exec):
         print('ERROR: {} does not exist'.format(args.abrun_exec))
@@ -146,7 +147,6 @@ def main():
     suite_filename = '{result_dir}/suite.rc'.format(**params)
     with open(suite_filename, 'w') as f:
         f.write(SUITE_RC_TEMPLATE.format(**params))
-    
     print('Cylc suite file is {}.'.format(suite_filename))
 
 if __name__ == '__main__':
