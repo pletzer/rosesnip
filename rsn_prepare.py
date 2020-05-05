@@ -56,6 +56,8 @@ def generate_template_conf(rose_conf, result_dir):
     Returns a template configuration without models or diags
 
     rose_conf  : original rose configuration
+    result_dir : top result directory
+    index      : processor id
 
     returns template configuration
     """
@@ -64,9 +66,6 @@ def generate_template_conf(rose_conf, result_dir):
         if not re.match(PAT_MODEL, section) and not re.match(PAT_DIAG, section):
             # not a model and not a diag section so add
             conf[section] = rose_conf[section]
-
-    # set the result_dir
-    conf['general']['output_dir'] = result_dir + '/tmp'
 
     return conf 
 
@@ -99,8 +98,6 @@ def create_model_diag_conf(rose_conf, templ_conf, model, diag, index, start_date
     if end_date:
         conf[mname]['end_date'] = end_date
 
-    # add processor Id
-    conf['general']['processor_id'] = str(index)
     conf['general']['clear_netcdf_cache'] = 'false'
 
     return conf
@@ -126,9 +123,15 @@ def write_rose_conf(result_dir, conf_filename,
     conf = create_model_diag_conf(rose_conf, template_conf, 
                                   model, diag, index, start_date, end_date)
 
+    # set the result_dir
+    output_dir = result_dir + f'/{index:05}'
+    conf['general']['output_dir'] = output_dir
+
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
     # write the file
-    fmt = '_{}'
-    confilename = os.path.join(result_dir, conf_filename + fmt.format(index))
+    confilename = os.path.join(output_dir, conf_filename)
     with open(confilename, 'w') as configfile:
         conf.write(configfile)
 
