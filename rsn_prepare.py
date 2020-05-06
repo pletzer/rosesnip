@@ -85,7 +85,7 @@ def write_rose_conf(result_dir, conf_filename,
 
     # set the result_dir
     output_dir = result_dir + f'/{index:05}'
-    conf['general']['output_dir'] = result_dir
+    conf['general']['output_dir'] = output_dir
 
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
@@ -160,6 +160,7 @@ def main():
     ori_conf = ConfigParser()
     ori_conf.read(args.conf_filename)
     ori_conf['general']['output_dir'] = args.result_dir
+    ori_conf['general']['clear_netcdf_cache'] = 'false'
     with open(args.result_dir + '/' + os.path.basename(args.conf_filename), 'w') as f:
         ori_conf.write(f)
 

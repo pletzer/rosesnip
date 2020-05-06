@@ -57,6 +57,8 @@ set +u # ignore undefined variables, takes care of a tput error
 if [ $# == 0 ]
 then
     # final run, create plots, etc. from cached data
+    mkdir -p {result_dir}/nc
+    cp -r {result_dir}/[0-9][0-9][0-9][0-9][0-9]/nc/* {result_dir}/nc
     {abrun_exec} {app_name} -c {result_dir}/{conf_file_base} -v
 else
     index=$(printf "%05d" $1)
