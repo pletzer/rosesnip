@@ -91,7 +91,7 @@ def write_rose_conf(result_dir, conf_filename,
         os.mkdir(output_dir)
 
     # write the file
-    confilename = os.path.join(output_dir, conf_filename)
+    confilename = os.path.join(output_dir, os.path.basename(conf_filename))
     with open(confilename, 'w') as configfile:
         conf.write(configfile)
 
@@ -189,7 +189,7 @@ def main():
                 continue
 
             write_rose_conf(args.result_dir, args.conf_filename, 
-                                template_conf, rose_conf, model, diag, index)
+                            template_conf, rose_conf, model, diag, index)
             index += 1
 
     print('disabled diags: {}'.format(disabled_diags))
