@@ -6,9 +6,7 @@ import argparse
 from configparser import ConfigParser
 import os
 import re
-from datetime import datetime
 import copy
-import numpy
 from configparser import ConfigParser
 
 """
