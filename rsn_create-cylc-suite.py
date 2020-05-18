@@ -42,6 +42,7 @@ SLURM_TEMPLATE = \
             execution time limit = {exec_time_limit}
         [[[directives]]]
             --account={account}
+            --partition={partition}
             --export=NONE
             --tasks=1
             --cpus-per-task=1
