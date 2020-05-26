@@ -10,7 +10,7 @@
 
 [general]
   max_num_concurrent_jobs = 40
-  exec_time_limit = PT4H
+  exec_time_limit = PT12H
 
 [slurm]
   account = nesi99999
