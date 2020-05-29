@@ -101,6 +101,8 @@ def main():
                             help='execution time limit for each task')
     parser.add_argument('--account', dest='account', default=rsn_config['slurm']['account'], 
                             help='SLURM account number')
+    parser.add_argument('--partition', dest='partition', default=rsn_config['slurm']['partition'], 
+                            help='SLURM partition')
     args = parser.parse_args()
 
     # make sure we dealing with full paths
@@ -134,6 +136,7 @@ def main():
         'pwd': os.getcwd(),
         'result_dir': args.result_dir,
         'account': args.account,
+        'partition': args.partition,
         }
     if not args.interactive:
         params['batch'] = SLURM_TEMPLATE.format(**params)
