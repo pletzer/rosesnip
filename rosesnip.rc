@@ -1,7 +1,7 @@
 [afterburner]
 
   # full path to the python executable
-  python_exec = /opt/nesi/CS500_centos7_skl/Anaconda3/2020.02-GCC-7.1.0/bin/python
+  python_exec = /nesi/nobackup/niwa00013/williamsjh/miniconda3/envs/afterburner/bin/python
 
   # full path to abrun.sh
   abrun_exec = /home/williamsjh/turbofan/trunk/bin/abrun.sh
