@@ -32,7 +32,7 @@ Edit `rosesnip.rc` and adapt the configuration for your environment. For instanc
 ## How to use rosesnip
 
 Running rosesnip involves three steps:
- 1. prepare the rose configureation files for parallel execution
+ 1. prepare the rose configuration files for parallel execution
  2. generate the cylc suit.rc file
  3. run the suite
 
