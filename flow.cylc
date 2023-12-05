@@ -1,0 +1,32 @@
+
+[meta]
+    title = "Submit parallel monitor jobs"
+
+[scheduler]
+    [task parameters]
+        procid = 0..161
+
+[scheduling]
+   [[queues]]
+       [[[default]]]
+           # max number of concurrent jobs
+           limit = 40   
+   [[dependencies]]
+        R1 = "run<procid> => final_run"
+
+[runtime]
+    
+    [[root]]
+    platform = maui-ancil-slurm
+            execution time limit = PT12H
+        [[[directives]]]
+            --account=niwa00013
+            --partition=nesi_prepost
+            --export=NONE
+            --tasks=1
+            --cpus-per-task=1
+
+    [[run<procid>]]
+        script = "sh /scale_wlg_persistent/filesets/project/niwa00013/williamsjh/rosesnip/$CYLC_WORKFLOW_NAME//rsn_run.sh ${CYLC_TASK_PARAM_procid}"
+    [[final_run]] 
+        script = "sh /scale_wlg_persistent/filesets/project/niwa00013/williamsjh/rosesnip/$CYLC_WORKFLOW_NAME//rsn_run.sh"

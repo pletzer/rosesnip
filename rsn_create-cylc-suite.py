@@ -6,16 +6,17 @@ import re
 from configparser import ConfigParser
 
 """
-Generate a cylc suite
+Generate a cylc workflow
 """
 
-SUITE_RC_TEMPLATE = \
+WORKFLOW_RC_TEMPLATE = \
 """
 [meta]
     title = "Submit parallel monitor jobs"
 
-[cylc]
-    [[parameters]]
+[scheduler]
+
+[task parameters]
         procid = 0..{max_index}
 
 [scheduling]
@@ -24,7 +25,7 @@ SUITE_RC_TEMPLATE = \
            # max number of concurrent jobs
            limit = {max_num_concurrent_jobs}   
    [[dependencies]]
-        graph = "run<procid> => final_run"
+        R1 = "run<procid> => final_run"
 
 [runtime]
     {batch}
@@ -37,8 +38,7 @@ SUITE_RC_TEMPLATE = \
 SLURM_TEMPLATE = \
 """
     [[root]]
-        [[[job]]]
-            batch system = slurm
+            platform = maui-ancil-slurm
             execution time limit = {exec_time_limit}
         [[[directives]]]
             --account={account}
@@ -86,7 +86,7 @@ def main():
     rsn_config = ConfigParser()
     rsn_config.read('rosesnip.rc')
 
-    parser = argparse.ArgumentParser(description='Generate CYLC suite.rc file.')
+    parser = argparse.ArgumentParser(description='Generate CYLC flow.cylc file.')
     parser.add_argument('-d', dest='result_dir', default='', help='specify result directory (output of rsn_prepare.py)')
     parser.add_argument('-a', dest='abrun_exec', default=rsn_config['afterburner']['abrun_exec'], 
                               help='full path to abrun.sh executable')
@@ -94,7 +94,7 @@ def main():
                               help='name of afterburner app')
     parser.add_argument('-m', dest='max_num_concurrent_jobs', default=rsn_config['general']['max_num_concurrent_jobs'], 
                               help='max number of concurrent jobs')
-    parser.add_argument('-I', dest='interactive', action='store_true', help='create suite.rc file for for interactive execution (default is SLURM)')
+    parser.add_argument('-I', dest='interactive', action='store_true', help='create flow.cylc file for for interactive execution (default is SLURM)')
     parser.add_argument('-p', dest='python_exec', default=rsn_config['afterburner']['python_exec'], 
                               help='path to python executable')
     parser.add_argument('-L', dest='exec_time_limit', default=rsn_config['general']['exec_time_limit'], 
@@ -147,11 +147,11 @@ def main():
         f.write(RUN_TEMPLATE.format(**params))
     print('Run script is {}.'.format(run_filename))
 
-    # create suite.rc
-    suite_filename = '{result_dir}/suite.rc'.format(**params)
-    with open(suite_filename, 'w') as f:
-        f.write(SUITE_RC_TEMPLATE.format(**params))
-    print('Cylc suite file is {}.'.format(suite_filename))
+    # create flow.cylc
+    workflow_filename = '{result_dir}/flow.cylc'.format(**params)
+    with open(workflow_filename, 'w') as f:
+        f.write(WORKFLOW_RC_TEMPLATE.format(**params))
+    print('Cylc workflow file is {}.'.format(workflow_filename))
 
 if __name__ == '__main__':
     main()
