@@ -13,6 +13,6 @@
   exec_time_limit = PT12H
 
 [slurm]
-  account = nesi99999
+  account = niwa00013
   partition = nesi_prepost
   
